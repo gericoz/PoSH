@@ -6,6 +6,7 @@
 # Script Author:                  Tushar Singh (matrixtushar@gmail.com)
 # Revision History:               1.00.00            Initial Build   03-Feb-2019
 #                                 1.00.01            Error Handling in case machine not in domain
+#                                 1.00.02            Geoffray DELEVOYE Error function fix function declaration at end of script when called upstream
 # ---------------------------------------------------------------------------------------------------------
 
 $PSScriptDir = Split-Path $Script:MyInvocation.MyCommand.Path
@@ -79,31 +80,6 @@ $Button2.Font                    = 'Microsoft Sans Serif,10'
 
 $Form.controls.AddRange(@($Label1,$PictureBox1,$Domain,$ComboBox1,$Label2,$ComboBox2,$Button1,$Button2))
 
-try
-  {
-    $sDomains = [System.DirectoryServices.ActiveDirectory.Forest]::GetCurrentForest() | Select-Object -ExpandProperty domains
-    foreach ($sDomain in $sDomains)
-    {
-        $ComboBox1.Items.Add($sDomain)
-    }
-
-
-  }
-  catch
-  {
-    $Combobox1.Enabled = $false
-    $Combobox2.Enabled = $false
-    [System.Windows.Forms.MessageBox]::Show("Error Enumerating Domains of the forest. Ensure that the computer is joined to a domain or has network connectivity.","Error")
-   }
-
-    $ComboBox1.Add_TextChanged({ domainselect })
-    $Button1.Add_Click({ Extract })
-    $Button2.Add_Click({ Cancel })
-
-
-$Form.ShowDialog()
-
-
 function domainselect
 {
     if($ComboBox1.Text.Length -ne $null)
@@ -148,3 +124,30 @@ function Cancel
 {
     $Form.Close()
 }
+
+
+try
+  {
+    $sDomains = [System.DirectoryServices.ActiveDirectory.Forest]::GetCurrentForest() | Select-Object -ExpandProperty domains
+    foreach ($sDomain in $sDomains)
+    {
+        $ComboBox1.Items.Add($sDomain)
+    }
+
+
+  }
+  catch
+  {
+    $Combobox1.Enabled = $false
+    $Combobox2.Enabled = $false
+    [System.Windows.Forms.MessageBox]::Show("Error Enumerating Domains of the forest. Ensure that the computer is joined to a domain or has network connectivity.","Error")
+   }
+
+    $ComboBox1.Add_TextChanged({ domainselect })
+    $Button1.Add_Click({ Extract })
+    $Button2.Add_Click({ Cancel })
+
+
+$Form.ShowDialog()
+
+
